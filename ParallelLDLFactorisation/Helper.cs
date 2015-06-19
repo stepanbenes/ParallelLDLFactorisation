@@ -14,5 +14,7 @@ namespace ParallelLDLFactorisation
 			left = right;
 			right = temp;
 		}
+
+		public static double Sqr(double value) => value * value;
 	}
 }

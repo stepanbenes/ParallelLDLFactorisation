@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static ParallelLDLFactorisation.Helper;
 
 namespace ParallelLDLFactorisation
 {
@@ -75,6 +76,37 @@ namespace ParallelLDLFactorisation
 		public override string ToString()
 		{
 			return string.Format("{0} {1}x{2} ({3} B)", GetType().Name, Rows, Columns, MemoryConsumption);
+		}
+
+		public virtual void Factorize(out Matrix L, out Matrix D)
+		{
+			L = new DenseMatrix(rows, columns);
+			D = new DenseMatrix(rows, columns);
+
+			for (int j = 0; j < columns; j++)
+			{
+				double dFactor = 0;
+
+				for (int k = 0; k < j; k++)
+				{
+					dFactor += Sqr(L[j, k]) * D[k, k];
+				}
+
+				D[j, j] = this[j, j] - dFactor;
+
+				
+				for (int i = j; i < rows; i++)
+				{
+					double lFactor = 0;
+
+					for (int k = 0; k < j; k++)
+					{
+						lFactor += L[i, k] * D[k, k] * L[j, k];
+					}
+
+					L[i, j] = (this[i, j] - lFactor) / D[j, j];
+                }
+			}
 		}
 	}
 }

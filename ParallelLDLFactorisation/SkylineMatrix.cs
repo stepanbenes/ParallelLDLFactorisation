@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static ParallelLDLFactorisation.Helper;
 
 namespace ParallelLDLFactorisation
 {
@@ -43,7 +44,7 @@ namespace ParallelLDLFactorisation
 		{
 			if (row > column) // looking for element under diagonal, swap indices (matrix is symmetric)
 			{
-				Helper.Swap(ref row, ref column);
+				Swap(ref row, ref column);
 			}
 
 			int topIndex = columnHeaderIndices[column];
@@ -64,7 +65,7 @@ namespace ParallelLDLFactorisation
 
 			if (row > column) // trying to set an element under diagonal, swap indices (matrix is symmetric)
 			{
-				Helper.Swap(ref row, ref column);
+				Swap(ref row, ref column);
 			}
 
 			int topIndex = columnHeaderIndices[column];
