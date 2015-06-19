@@ -93,9 +93,9 @@ namespace ParallelLDLFactorisation
 				}
 
 				D[j, j] = this[j, j] - dFactor;
+				L[j, j] = 1;
 
-				
-				for (int i = j; i < rows; i++)
+				for (int i = j + 1; i < rows; i++)
 				{
 					double lFactor = 0;
 
@@ -105,8 +105,42 @@ namespace ParallelLDLFactorisation
 					}
 
 					L[i, j] = (this[i, j] - lFactor) / D[j, j];
-                }
+				}
 			}
+		}
+
+		public virtual void FactorizeParallel(out Matrix Lmatrix, out Matrix Dmatrix)
+		{
+			var L = new DenseMatrix(rows, columns);
+			var D = new DenseMatrix(rows, columns);
+
+			for (int j = 0; j < columns; j++)
+			{
+				double dFactor = 0;
+
+				for (int k = 0; k < j; k++)
+				{
+					dFactor += Sqr(L[j, k]) * D[k, k];
+				}
+
+				D[j, j] = this[j, j] - dFactor;
+				L[j, j] = 1;
+
+				Parallel.For(j + 1, rows, i =>
+				  {
+					  double lFactor = 0;
+
+					  for (int k = 0; k < j; k++)
+					  {
+						  lFactor += L[i, k] * D[k, k] * L[j, k];
+					  }
+
+					  L[i, j] = (this[i, j] - lFactor) / D[j, j];
+				  });
+			}
+
+			Lmatrix = L;
+			Dmatrix = D;
 		}
 	}
 }

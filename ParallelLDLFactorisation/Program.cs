@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,10 +11,53 @@ namespace ParallelLDLFactorisation
 	{
 		static void Main(string[] args)
 		{
-			var matrix = new SkylineMatrix(3, 3);
+			var matrix = new DenseMatrix(3000, 3000);
 
 			//fillMatrix(matrix);
+			//fillSmallMatrix(matrix);
+			generateRandomMatrix(matrix);
 
+			Console.WriteLine(matrix.ToString());
+
+			//Console.WriteLine("Matrix A:");
+			//Console.WriteLine(matrix.ValuesToFormattedText());
+
+			Stopwatch stopwatch = new Stopwatch();
+
+			Matrix L, D;
+			stopwatch.Start();
+			{
+				matrix.Factorize(out L, out D);
+			}
+			stopwatch.Stop();
+			var sequentialTime = stopwatch.ElapsedMilliseconds;
+            Console.WriteLine("Sequential factorization time: " + sequentialTime + " ms");
+
+			//Console.WriteLine("Matrix L:");
+			//Console.WriteLine(L.ValuesToFormattedText());
+
+			//Console.WriteLine("Matrix D:");
+			//Console.WriteLine(D.ValuesToFormattedText());
+
+			Matrix L2, D2;
+			stopwatch.Restart();
+			{
+				matrix.FactorizeParallel(out L2, out D2);
+			}
+			stopwatch.Stop();
+			var parallelTime = stopwatch.ElapsedMilliseconds;
+            Console.WriteLine("Parallel factorization time: " + parallelTime + " ms");
+
+			Console.WriteLine("Sequential L equals parallel L: " + L.Equals(L2));
+			Console.WriteLine("Sequential D equals parallel L: " + D.Equals(D2));
+
+			Console.WriteLine(string.Format("Speedup: {0:N2} X", ((double)sequentialTime / (double)parallelTime)));
+
+			Console.ReadLine();
+		}
+
+		private static void fillSmallMatrix(SkylineMatrix matrix)
+		{
 			matrix[0, 0] = 2;
 			matrix[0, 1] = -1;
 			matrix[0, 2] = 0;
@@ -25,23 +69,9 @@ namespace ParallelLDLFactorisation
 			matrix[2, 0] = 0;
 			matrix[2, 1] = -1;
 			matrix[2, 2] = 1;
-
-			Console.WriteLine("Matrix A:");
-			Console.WriteLine(matrix.ValuesToFormattedText());
-
-			Matrix L, D;
-			matrix.Factorize(out L, out D);
-
-			Console.WriteLine("Matrix L:");
-			Console.WriteLine(L.ValuesToFormattedText());
-
-			Console.WriteLine("Matrix D:");
-			Console.WriteLine(D.ValuesToFormattedText());
-
-			Console.ReadLine();
 		}
 
-		private static void fillMatrix(SkylineMatrix matrix)
+		private static void userFillMatrix(Matrix matrix)
 		{
 			while (true)
 			{
@@ -61,6 +91,19 @@ namespace ParallelLDLFactorisation
 					break;
 
 				matrix[row, column] = value;
+			}
+		}
+
+		private static void generateRandomMatrix(Matrix matrix)
+		{
+			Random random = new Random();
+
+			for (int i = 0; i < matrix.Rows; i++)
+			{
+				for (int j = 0; j < matrix.Columns; j++)
+				{
+					matrix[i, j] = random.NextDouble();
+				}
 			}
 		}
 	}
