@@ -8,47 +8,51 @@ using static ParallelLDLFactorisation.Helper;
 
 namespace ParallelLDLFactorisation
 {
-	class SkylineMatrix : Matrix
+	abstract class SkylineMatrix : Matrix
 	{
-		List<double> values;
-		int[] columnHeaderIndices;
+		protected List<double> values;
+		protected int[] topIndices;
 
-		public SkylineMatrix(int rows) : base(rows, rows)
+		public SkylineMatrix(int rows)
+			: base(rows, rows)
 		{
 			// rows == columns
 			values = new List<double>();
-			columnHeaderIndices = new int[Columns + 1];
+			topIndices = new int[Columns + 1];
 		}
 
-		public override double this[int row, int column]
+		public SkylineMatrix(int rows, IEnumerable<double> values, IEnumerable<int> topIndices)
+			: base(rows, rows)
 		{
-			get
-			{
-				return fetch(row, column);
-			}
-			set
-			{
-				set(row, column, value);
-			}
+			this.values = values.ToList();
+			this.topIndices = topIndices.ToArray();
+
+			Debug.Assert(rows == this.topIndices.Length - 1);
 		}
+
+		#region Overrides
 
 		public override long MemoryConsumption
 		{
 			get
 			{
-				return values.Count * 8 + columnHeaderIndices.Length * 4;
+				return values.Capacity * 8 + topIndices.Length * 4;
 			}
 		}
-		
-		private double fetch(int row, int column)
+
+		#endregion
+
+		#region Protected methods
+
+		protected double fetch(int row, int column)
 		{
-			if (row > column) // looking for element under diagonal, swap indices (matrix is symmetric)
+			if (row > column) // looking for element under diagonal, swap indices
 			{
 				Swap(ref row, ref column);
 			}
 
-			int topIndex = columnHeaderIndices[column];
-			int count = columnHeaderIndices[column + 1] - topIndex;
+			int topIndex = topIndices[column];
+			int count = topIndices[column + 1] - topIndex;
 
 			int distanceFromDiagonal = column - row;
 
@@ -58,18 +62,18 @@ namespace ParallelLDLFactorisation
 			return values[topIndex + count - 1 - distanceFromDiagonal];
 		}
 
-		private void set(int row, int column, double value)
+		protected void set(int row, int column, double value)
 		{
 			if (IsZero(value)) // ignore zero values
 				return;
 
-			if (row > column) // trying to set an element under diagonal, swap indices (matrix is symmetric)
+			if (row > column) // trying to set an element under diagonal, swap indices
 			{
 				Swap(ref row, ref column);
 			}
 
-			int topIndex = columnHeaderIndices[column];
-			int count = columnHeaderIndices[column + 1] - topIndex;
+			int topIndex = topIndices[column];
+			int count = topIndices[column + 1] - topIndex;
 
 			int distanceFromDiagonal = column - row;
 
@@ -80,19 +84,25 @@ namespace ParallelLDLFactorisation
 			else // new value must be inserted
 			{
 				int countIncrease = distanceFromDiagonal - count + 1;
-                insertValue(value, topIndex, countIncrease);
-				
+				insertValue(value, topIndex, countIncrease);
+
 				// update column header indices
-				for (int i = column + 1; i < columnHeaderIndices.Length; i++)
+				for (int i = column + 1; i < topIndices.Length; i++)
 				{
-					columnHeaderIndices[i] += countIncrease;
+					topIndices[i] += countIncrease;
 				}
 			}
 		}
+
+		#endregion
+
+		#region Private methods
 
 		private void insertValue(double value, int index, int numberOfElementsToInsert)
 		{
 			values.InsertRange(index, Enumerable.Range(0, numberOfElementsToInsert).Select(i => i == 0 ? value : Zero));
 		}
+
+		#endregion
 	}
 }

@@ -51,9 +51,9 @@ namespace ParallelLDLFactorisation
 			Console.ReadLine();
 		}
 
-		private static SkylineMatrix createSkylineTestMatrix()
+		private static SkylineSymmetricMatrix createSkylineTestMatrix()
 		{
-			SkylineMatrix matrix = new SkylineMatrix(5);
+			SkylineSymmetricMatrix matrix = new SkylineSymmetricMatrix(5);
 
 			matrix[0, 0] = 3;
 			matrix[1, 1] = 2;
