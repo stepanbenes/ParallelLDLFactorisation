@@ -11,7 +11,8 @@ namespace ParallelLDLFactorisation
 	{
 		static void Main(string[] args)
 		{
-			var A = createSkylineTestMatrix();
+			var generator = new SkylineGenerator();
+			var A = generator.Generate(8, 2);
 
 			Console.WriteLine("Matrix A:");
 			Console.WriteLine(A.ToString());
@@ -49,24 +50,6 @@ namespace ParallelLDLFactorisation
 			//Console.WriteLine(string.Format("Speedup: {0:N2} X", ((double)sequentialTime / (double)parallelTime)));
 
 			Console.ReadLine();
-		}
-
-		private static SkylineSymmetricMatrix createSkylineTestMatrix()
-		{
-			SkylineSymmetricMatrix matrix = new SkylineSymmetricMatrix(5);
-
-			matrix[0, 0] = 3;
-			matrix[1, 1] = 2;
-			matrix[2, 2] = 4;
-			matrix[3, 3] = 8;
-			matrix[4, 4] = 2;
-
-			matrix[1, 2] = 6;
-			matrix[1, 3] = 2;
-			matrix[0, 4] = 2;
-			matrix[1, 4] = 5;
-
-			return matrix;
 		}
 
 		private static void fillTestMatrix(Matrix matrix)
