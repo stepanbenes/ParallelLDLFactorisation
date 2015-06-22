@@ -13,11 +13,11 @@ namespace ParallelLDLFactorisation
 		List<double> values;
 		int[] columnHeaderIndices;
 
-		public SkylineMatrix(int rows, int columns) : base(rows, columns)
+		public SkylineMatrix(int rows) : base(rows, rows)
 		{
-			Debug.Assert(rows == columns);
+			// rows == columns
 			values = new List<double>();
-			columnHeaderIndices = new int[columns + 1];
+			columnHeaderIndices = new int[Columns + 1];
 		}
 
 		public override double this[int row, int column]
@@ -39,7 +39,7 @@ namespace ParallelLDLFactorisation
 				return values.Count * 8 + columnHeaderIndices.Length * 4;
 			}
 		}
-
+		
 		private double fetch(int row, int column)
 		{
 			if (row > column) // looking for element under diagonal, swap indices (matrix is symmetric)

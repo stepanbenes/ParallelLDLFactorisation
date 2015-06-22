@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -141,6 +142,38 @@ namespace ParallelLDLFactorisation
 
 			Lmatrix = L;
 			Dmatrix = D;
+		}
+
+		public virtual Matrix Transpose()
+		{
+			Matrix transposed = new DenseMatrix(Columns, Rows);
+			for (int i = 0; i < Rows; i++)
+			{
+				for (int j = 0; j < Columns; j++)
+				{
+					transposed[j, i] = this[i, j];
+				}
+			}
+			return transposed;
+		}
+
+		public virtual Matrix Multiply(Matrix other)
+		{
+			Debug.Assert(this.Columns == other.Rows);
+			DenseMatrix result = new DenseMatrix(this.Rows, other.Columns);
+			for (int i = 0; i < this.Rows; i++)
+			{
+				for (int j = 0; j < other.Columns; j++)
+				{
+					double accumulator = Zero;
+					for (int k = 0; k < this.Columns; k++)
+					{
+						accumulator += this[i, k] * other[k, j];
+					}
+					result[i, j] = accumulator;
+				}
+			}
+			return result;
 		}
 	}
 }
