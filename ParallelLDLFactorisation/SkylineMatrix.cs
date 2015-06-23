@@ -40,6 +40,89 @@ namespace ParallelLDLFactorisation
 			}
 		}
 
+		public override void Factorize(out Matrix Lmatrix, out Matrix Dmatrix)
+		{
+			var L = new SkylineLowerTriangularMatrix(Rows);
+			var D = new DiagonalMatrix(Rows);
+
+			for (int j = 0; j < Columns; j++)
+			{
+				double dFactor = 0;
+
+				for (int k = 0; k < j; k++)
+				{
+					dFactor += Sqr(L[j, k]) * D[k, k];
+				}
+
+				D[j, j] = this[j, j] - dFactor;
+				L[j, j] = 1;
+
+				for (int i = j + 1; i < Rows; i++)
+				{
+					double lFactor = 0;
+
+					for (int k = 0; k < j; k++)
+					{
+						lFactor += L[i, k] * D[k, k] * L[j, k];
+					}
+
+					L[i, j] = (this[i, j] - lFactor) / D[j, j];
+				}
+			}
+
+			Lmatrix = L;
+			Dmatrix = D;
+		}
+
+		public void FactorizeSkyline(out Matrix Lmatrix, out Matrix Dmatrix)
+		{
+			throw new NotImplementedException();
+		}
+
+		public override void FactorizeParallel(out Matrix Lmatrix, out Matrix Dmatrix)
+		{
+			var L = new SkylineLowerTriangularMatrix(Rows);
+			var D = new DiagonalMatrix(Rows);
+
+			//object locker = new object();
+
+			for (int j = 0; j < Columns; j++)
+			{
+				double dFactor = 0;
+
+				for (int k = 0; k < j; k++)
+				{
+					dFactor += Sqr(L[j, k]) * D[k, k];
+				}
+
+				D[j, j] = this[j, j] - dFactor;
+				L[j, j] = 1;
+
+				Parallel.For(fromInclusive: j + 1, toExclusive: Rows, body: i =>
+				{
+					double lFactor = 0;
+
+					for (int k = 0; k < j; k++)
+					{
+						lFactor += L[i, k] * D[k, k] * L[j, k];
+					}
+
+					//lock (locker) // necessary? lock around inserting into values list should be enough
+					{
+						L[i, j] = (this[i, j] - lFactor) / D[j, j];
+					}
+				});
+			}
+
+			Lmatrix = L;
+			Dmatrix = D;
+		}
+
+		public void FactorizeSkylineParallel(out Matrix Lmatrix, out Matrix Dmatrix)
+		{
+			throw new NotImplementedException();
+		}
+
 		#endregion
 
 		#region Protected methods

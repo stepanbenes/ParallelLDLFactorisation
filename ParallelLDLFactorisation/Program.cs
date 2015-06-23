@@ -12,11 +12,11 @@ namespace ParallelLDLFactorisation
 		static void Main(string[] args)
 		{
 			var generator = new SkylineGenerator();
-			var A = generator.Generate(8, 2);
+			var A = generator.Generate(2000, 2);
 
 			Console.WriteLine("Matrix A:");
 			Console.WriteLine(A.ToString());
-			Console.WriteLine(A.ValuesToFormattedText());
+			//Console.WriteLine(A.ValuesToFormattedText());
 
 			Stopwatch stopwatch = new Stopwatch();
 
@@ -27,29 +27,39 @@ namespace ParallelLDLFactorisation
 			}
 			stopwatch.Stop();
 			var sequentialTime = stopwatch.ElapsedMilliseconds;
-			//Console.WriteLine("Sequential factorization time: " + sequentialTime + " ms");
-
-			Console.WriteLine("Matrix L:");
-			Console.WriteLine(L.ValuesToFormattedText());
-
-			Console.WriteLine("Matrix D:");
-			Console.WriteLine(D.ValuesToFormattedText());
-
-			Console.WriteLine("A = LDLt check: " + A.Equals(L.Multiply(D).Multiply(L.Transpose())));
-
-			//Matrix L2, D2;
+			Console.WriteLine("Sequential factorization time: " + sequentialTime + " ms");
 			//stopwatch.Restart();
 			//{
-			//	matrix.FactorizeParallel(out L2, out D2);
+			//	A.FactorizeSkyline(out L, out D);
 			//}
 			//stopwatch.Stop();
-			//var parallelTime = stopwatch.ElapsedMilliseconds;
-			//Console.WriteLine("Parallel factorization time: " + parallelTime + " ms");
-			//Console.WriteLine("Sequential L equals parallel L: " + L.Equals(L2));
-			//Console.WriteLine("Sequential D equals parallel D: " + D.Equals(D2));
-			//Console.WriteLine(string.Format("Speedup: {0:N2} X", ((double)sequentialTime / (double)parallelTime)));
+			//var sequentialSkylineTime = stopwatch.ElapsedMilliseconds;
+			//Console.WriteLine("Sequential skyline factorization time: " + sequentialSkylineTime + " ms");
 
-			Console.ReadLine();
+			Console.WriteLine("Matrix L:");
+			Console.WriteLine(A.ToString());
+			//Console.WriteLine(L.ValuesToFormattedText());
+
+			Console.WriteLine("Matrix D:");
+			Console.WriteLine(D.ToString());
+			//Console.WriteLine(D.ValuesToFormattedText());
+
+			//Console.WriteLine("A = LDLt check: " + A.Equals(L.Multiply(D).Multiply(L.Transpose())));
+
+			Matrix L2, D2;
+			stopwatch.Restart();
+			{
+				A.FactorizeParallel(out L2, out D2);
+			}
+			stopwatch.Stop();
+			var parallelTime = stopwatch.ElapsedMilliseconds;
+			Console.WriteLine("Parallel factorization time: " + parallelTime + " ms");
+
+			Console.WriteLine("Sequential L equals parallel L: " + L.Equals(L2));
+			Console.WriteLine("Sequential D equals parallel D: " + D.Equals(D2));
+			Console.WriteLine(string.Format("Speedup: {0:N2} X", ((double)sequentialTime / (double)parallelTime)));
+
+			//Console.ReadLine();
 		}
 
 		private static void fillTestMatrix(Matrix matrix)
