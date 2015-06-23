@@ -50,10 +50,11 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SkylineGenerator.cs" />
-    <Compile Include="SkylineLowerTriangularMatrix.cs" />
+    <Compile Include="LowerTriangularMatrix.cs" />
     <Compile Include="SkylineMatrix.cs" />
     <Compile Include="SkylineSymmetricMatrix.cs" />
-    <Compile Include="SkylineUpperTriangularMatrix.cs" />
+    <Compile Include="TriangularMatrix.cs" />
+    <Compile Include="UpperTriangularMatrix.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

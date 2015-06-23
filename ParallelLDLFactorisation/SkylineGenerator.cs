@@ -30,17 +30,32 @@ namespace ParallelLDLFactorisation
 
 		public SkylineSymmetricMatrix Generate(int rowCount, int bandWidth)
 		{
-			SkylineSymmetricMatrix matrix = new SkylineSymmetricMatrix(rowCount);
+			//SkylineSymmetricMatrix matrix = new SkylineSymmetricMatrix(rowCount);
 
-			for (int i = 0; i < matrix.Columns; i++)
+			//for (int i = 0; i < matrix.Columns; i++)
+			//{
+			//	int top = Math.Max(0, i - bandWidth + 1);
+			//	for (int j = i; j >= top; j--)
+			//	{
+			//		matrix[i, j] = random.NextDouble();
+			//	}
+			//}
+
+			List<double> values = new List<double>();
+			List<int> topIndices = new List<int>();
+
+			for (int i = 0; i < rowCount; i++)
 			{
+				topIndices.Add(values.Count);
 				int top = Math.Max(0, i - bandWidth + 1);
 				for (int j = i; j >= top; j--)
 				{
-					matrix[i, j] = random.NextDouble();
+					values.Add(random.NextDouble());
 				}
 			}
+			topIndices.Add(values.Count);
 
+			SkylineSymmetricMatrix matrix = new SkylineSymmetricMatrix(rowCount, values, topIndices);
 			return matrix;
 		}
 	}

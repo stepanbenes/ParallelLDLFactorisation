@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace ParallelLDLFactorisation
 {
-	class SkylineUpperTriangularMatrix : SkylineMatrix
+	class UpperTriangularMatrix : TriangularMatrix
 	{
 		#region Fields, constructor
 
-		public SkylineUpperTriangularMatrix(int rows)
+		public UpperTriangularMatrix(int rows)
 			: base(rows)
 		{ }
 
-		public SkylineUpperTriangularMatrix(int rows, IEnumerable<double> values, IEnumerable<int> topIndices)
-			: base(rows, values, topIndices)
+		public UpperTriangularMatrix(int rows, IEnumerable<List<double>> values)
+			: base(rows, values)
 		{ }
 
 		#endregion
@@ -40,7 +40,7 @@ namespace ParallelLDLFactorisation
 
 		public override Matrix Transpose()
 		{
-			return new SkylineLowerTriangularMatrix(this.Rows, this.values, this.topIndices);
+			return new LowerTriangularMatrix(this.Rows, this.values);
 		}
 
 		#endregion
