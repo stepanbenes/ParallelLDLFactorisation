@@ -11,71 +11,82 @@ namespace ParallelLDLFactorisation
 	{
 		static void Main(string[] args)
 		{
-			var generator = new SkylineGenerator();
-			var A = generator.Generate(10000, 100);
-
-			Console.WriteLine("Matrix A:");
-			Console.WriteLine(A.ToString());
-			//Console.WriteLine(A.ValuesToFormattedText());
-
 			Stopwatch stopwatch = new Stopwatch();
 
-			//Matrix L, D;
-			//stopwatch.Start();
-			//{
-			//	A.Factorize(out L, out D);
-			//}
-			//stopwatch.Stop();
-			//var sequentialTime = stopwatch.ElapsedMilliseconds;
-			//Console.WriteLine("Sequential factorization time: " + sequentialTime + " ms");
-
-			//Matrix Lp, Dp;
-			//stopwatch.Restart();
-			//{
-			//	A.FactorizeParallel(out Lp, out Dp);
-			//}
-			//stopwatch.Stop();
-			//var parallelTime = stopwatch.ElapsedMilliseconds;
-			//Console.WriteLine("Parallel factorization time: " + parallelTime + " ms");
-
-			Matrix Ls, Ds;
-			stopwatch.Restart();
+			int rowCount = 5000;
+			foreach (int bandPercent in new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 })
 			{
-				A.FactorizeSkyline(out Ls, out Ds);
+				int bandWidth = (int)(rowCount * (bandPercent / 100.0));
+				var generator = new SkylineGenerator();
+				var A = generator.Generate(rowCount, bandWidth);
+
+				Console.WriteLine("Matrix A:");
+				Console.WriteLine(A.ToString() + $" band: {bandWidth} ({bandPercent} %)");
+				//Console.WriteLine(A.ValuesToFormattedText());
+
+				// =====================================
+				//Matrix L, D;
+				//stopwatch.Restart();
+				//{
+				//	A.Factorize(out L, out D);
+				//}
+				//stopwatch.Stop();
+				//var sequentialTime = stopwatch.ElapsedMilliseconds;
+				//Console.WriteLine("Sequential factorization time: " + sequentialTime + " ms");
+				//// =====================================
+				//Matrix Lp, Dp;
+				//stopwatch.Restart();
+				//{
+				//	A.FactorizeParallel(out Lp, out Dp);
+				//}
+				//stopwatch.Stop();
+				//var parallelTime = stopwatch.ElapsedMilliseconds;
+				//Console.WriteLine("Parallel factorization time: " + parallelTime + " ms");
+
+				//Console.WriteLine(string.Format("Speedup: {0:N2} X", ((double)sequentialTime / (double)parallelTime)));
+				// =====================================
+
+				Matrix Ls, Ds;
+				stopwatch.Restart();
+				{
+					A.FactorizeSkyline(out Ls, out Ds);
+				}
+				stopwatch.Stop();
+				var sequentialSkylineTime = stopwatch.ElapsedMilliseconds;
+				Console.WriteLine("Sequential skyline factorization time: " + sequentialSkylineTime + " ms");
+
+				Matrix Lsp, Dsp;
+				stopwatch.Restart();
+				{
+					A.FactorizeSkylineParallel(out Lsp, out Dsp);
+				}
+				stopwatch.Stop();
+				var parallelSkylineTime = stopwatch.ElapsedMilliseconds;
+				Console.WriteLine("Parallel skyline factorization time: " + parallelSkylineTime + " ms");
+
+				Console.WriteLine(string.Format("Skyline Speedup: {0:N2} X", ((double)sequentialSkylineTime / (double)parallelSkylineTime)));
+				// =====================================
+
+				//Console.WriteLine("L equals Ls: " + L.Equals(Ls));
+				//Console.WriteLine("D equals Ds: " + D.Equals(Ds));
+				//Console.WriteLine("L equals Lp: " + L.Equals(Lp));
+				//Console.WriteLine("D equals Dp: " + D.Equals(Dp));
+				//Console.WriteLine("L equals Lsp: " + L.Equals(Lsp));
+				//Console.WriteLine("D equals Dsp: " + D.Equals(Dsp));
+
+
+				//Console.WriteLine("Matrix L:");
+				//Console.WriteLine(A.ToString());
+				//Console.WriteLine(L.ValuesToFormattedText());
+
+				//Console.WriteLine("Matrix D:");
+				//Console.WriteLine(D.ToString());
+				//Console.WriteLine(D.ValuesToFormattedText());
+
+				//Console.WriteLine("A = LDLt check: " + A.Equals(L.Multiply(D).Multiply(L.Transpose())));
 			}
-			stopwatch.Stop();
-			var sequentialSkylineTime = stopwatch.ElapsedMilliseconds;
-			Console.WriteLine("Sequential skyline factorization time: " + sequentialSkylineTime + " ms");
 
-			Matrix Lsp, Dsp;
-			stopwatch.Restart();
-			{
-				A.FactorizeSkylineParallel(out Lsp, out Dsp);
-			}
-			stopwatch.Stop();
-			var parallelSkylineTime = stopwatch.ElapsedMilliseconds;
-			Console.WriteLine("Parallel skyline factorization time: " + parallelSkylineTime + " ms");
-
-			//Console.WriteLine("L equals Ls: " + L.Equals(Ls));
-			//Console.WriteLine("D equals Ds: " + D.Equals(Ds));
-			//Console.WriteLine("L equals Lp: " + L.Equals(Lp));
-			//Console.WriteLine("D equals Dp: " + D.Equals(Dp));
-			//Console.WriteLine("L equals Lsp: " + L.Equals(Lsp));
-			//Console.WriteLine("D equals Dsp: " + D.Equals(Dsp));
-
-			//Console.WriteLine(string.Format("Speedup: {0:N2} X", ((double)sequentialTime / (double)parallelTime)));
-			Console.WriteLine(string.Format("Skyline Speedup: {0:N2} X", ((double)sequentialSkylineTime / (double)parallelSkylineTime)));
-
-			//Console.WriteLine("Matrix L:");
-			//Console.WriteLine(A.ToString());
-			//Console.WriteLine(L.ValuesToFormattedText());
-
-			//Console.WriteLine("Matrix D:");
-			//Console.WriteLine(D.ToString());
-			//Console.WriteLine(D.ValuesToFormattedText());
-
-			//Console.WriteLine("A = LDLt check: " + A.Equals(L.Multiply(D).Multiply(L.Transpose())));
-
+			Console.WriteLine("Press any key to quit program...");
 			Console.ReadLine();
 		}
 
